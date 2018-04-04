@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 
 import javax.xml.ws.WebServiceException;
 
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
+
 import com.baiyyang.file.MyDelete;
 import com.baiyyang.global.Global;
 import com.baiyyang.operation.DOCTranslate;
@@ -171,9 +173,13 @@ public class Translate {
 
 			global.setDocFormat(DOCFormat);
 
-			DOCTranslate translate = new DOCTranslate();
-
-			translate.translate(global, language, domain );
+			try {
+				DOCTranslate translate = new DOCTranslate();
+				translate.translate(global, language, domain );
+			}catch (OfficeXmlFileException e) {
+				DOCXTranslate translate = new DOCXTranslate();
+				translate.translate(global, language, domain );
+			}
 		}
 
 		// docx翻译
@@ -199,9 +205,13 @@ public class Translate {
 				}
 			}
 
+			try {
 			DOCXTranslate translate = new DOCXTranslate();
-
 			translate.translate(global, language, domain);
+			}catch (OfficeXmlFileException e) {
+				DOCTranslate translate = new DOCTranslate();
+				translate.translate(global, language, domain );
+			}
 		}
 	}
 

@@ -29,6 +29,7 @@ public class WordWithTextPositions
 	List<TextPosition> textPositions;
 	
     PDFont font;
+    float fontSize;
     float fontSizeInPt;
     HashMap<PDFont, Integer> fontFreq = new HashMap<PDFont, Integer>();
     HashMap<Float, Integer> fontSizeFreq = new HashMap<Float, Integer>();
@@ -54,13 +55,14 @@ public class WordWithTextPositions
         float xend = 0f;
         float ytop = 1000000000f;
         for(TextPosition tp : positions) {
-        	fontSizeInPt = fontSizeInPt > tp.getFontSizeInPt() ? fontSizeInPt: tp.getFontSizeInPt();
+        	//fontSizeInPt = fontSizeInPt > tp.getFontSizeInPt() ? fontSizeInPt: tp.getFontSizeInPt();
+        	fontSizeInPt = fontSizeInPt > tp.getYScale() ? fontSizeInPt: tp.getYScale();
         	Xstart = Xstart < tp.getXDirAdj() ? Xstart : tp.getXDirAdj();
         	//Ystart = Math.max(Ystart, tp.getYDirAdj());
         	Ystart = Ystart > tp.getYDirAdj() ? Ystart : tp.getYDirAdj();
         	xend   = xend > (tp.getXDirAdj()+tp.getWidthDirAdj())  ? xend   : (tp.getXDirAdj()+tp.getWidthDirAdj());
         	//ytop = ytop < (tp.getYDirAdj()-tp.getHeightDir()) ? ytop : (tp.getYDirAdj()-tp.getHeightDir());
-        	ytop = ytop < (tp.getYDirAdj()-tp.getFontSizeInPt()) ? ytop : (tp.getYDirAdj()-tp.getFontSizeInPt());
+        	ytop = ytop < (tp.getYDirAdj()-tp.getYScale()) ? ytop : (tp.getYDirAdj()-tp.getYScale());
         	PDFont f = tp.getFont();
         	if (fontFreq.containsKey(f)) {
         		fontFreq.replace(f, fontFreq.get(f)+1);
@@ -111,7 +113,10 @@ public class WordWithTextPositions
     	}
     	
     	// 行间距过小
-    	if (w.Ystart - this.Ystart < this.getFontSizeInPt()) {
+    	if (w.Ystart - this.Ystart < this.getFontSizeInPt() - 2) {
+    	//if (w.Ystart - this.Ystart < 0) {
+    		System.err.println("WordWithTextPosition::appendV() Failed!\n"
+    				+ "\tCurr:"+ this.text + "\tNext:"+ w.text);
     		return false;
     	}
     	
@@ -154,7 +159,7 @@ public class WordWithTextPositions
         	}else {
         		fontFreq.put(f, 1);
         	}
-			float fs = tp.getFontSizeInPt();
+			float fs = tp.getYScale();
         	if (fontSizeFreq.containsKey(fs)) {
         		fontSizeFreq.replace(fs, fontSizeFreq.get(fs)+1);
         	}else {
@@ -225,7 +230,7 @@ public class WordWithTextPositions
         	}else {
         		fontFreq.put(f, 1);
         	}
-			float fs = tp.getFontSizeInPt();
+			float fs = tp.getYScale();
         	if (fontSizeFreq.containsKey(fs)) {
         		fontSizeFreq.replace(fs, fontSizeFreq.get(fs)+1);
         	}else {
@@ -313,7 +318,7 @@ public class WordWithTextPositions
 
     public String toString() {
     	return "[WordWithTextPositions]: " + text + "\t<" + Xstart + ", " + Ystart
-    			+ ", " + Width +", " + Height +"> <" + font.getName() +", "
+    			+ ", " + Width +", " + Height +"> <" + font.getName() +", " + fontSize + ", "
     			+ fontSizeInPt + "> "+ textPositions.size()+ " " + getColorInfo();
     }
     

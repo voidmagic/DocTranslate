@@ -729,6 +729,7 @@ public class PDFTextStripper extends LegacyPDFStreamEngine
                     if (!overlap(positionY, positionHeight, maxYForLine, maxHeightForLine))
                     {
                         writeLine(normalize(line));
+                        //lines.addAll(normalize(line));
                         lines.addAll(combine(normalize(line)));
                         line.clear();
                         lastLineStartPosition = handleLineSeparation(current, lastPosition,
@@ -782,6 +783,7 @@ public class PDFTextStripper extends LegacyPDFStreamEngine
             if (line.size() > 0)
             {
                 writeLine(normalize(line));
+                //lines.addAll(normalize(line));
                 lines.addAll(combine(normalize(line)));
                 writeParagraphEnd();
             }
@@ -1836,22 +1838,26 @@ public class PDFTextStripper extends LegacyPDFStreamEngine
         for (LineItem item : line)
         {
             lineBuilder = normalizeAdd(normalized, lineBuilder, wordPositions, item);
+            //System.out.println(" ... "+lineBuilder);
         }
 
         if (lineBuilder.length() > 0)
         {
             normalized.add(createWord(lineBuilder.toString(), wordPositions));
         }
+        //System.out.println(" ... "+normalized);
         return normalized;
     }
 
     private List<WordWithTextPositions> combine(List<WordWithTextPositions> words) {
     	List<WordWithTextPositions> wwtp = new ArrayList<WordWithTextPositions>();
     	WordWithTextPositions temp = null;
+    	
     	for (int i= 0; i < words.size(); i++) {
     		WordWithTextPositions curr = words.get(i);
     		if(curr.text.trim().length() == 0) continue; // 去掉空字符
     		
+    			
     		if (temp == null) {
     			temp = new WordWithTextPositions(curr.text,curr.textPositions);
     		}else {
@@ -1864,7 +1870,9 @@ public class PDFTextStripper extends LegacyPDFStreamEngine
     		WordWithTextPositions next = words.get(i+1);
     		float currlast = curr.Xstart+curr.Width;
     		float nextfirst = next.Xstart;
-    		if ((nextfirst - currlast) > next.textPositions.get(0).getWidthOfSpace() *5) {
+    		float pCharWidth = curr.getWidth()/curr.text.length();
+    		float cCharWidth = next.getWidth()/next.text.length();
+    		if ((nextfirst - currlast) > Math.max(cCharWidth, pCharWidth) *2) {
     			wwtp.add(temp);
     			temp = null;
     		}    		
@@ -2104,14 +2112,41 @@ public class PDFTextStripper extends LegacyPDFStreamEngine
     private StringBuilder normalizeAdd(List<WordWithTextPositions> normalized,
             StringBuilder lineBuilder, List<TextPosition> wordPositions, LineItem item)
     {
-        if (item.isWordSeparator())
+    	float spaceWithPrevious = 0;
+    	boolean bigSpace = false;
+    	if (!item.isWordSeparator() && wordPositions.size()> 0  ) {
+    		//System.out.println(item.getTextPosition().getUnicode());
+    		spaceWithPrevious = item.textPosition.getXDirAdj()- wordPositions.get(wordPositions.size()-1).getEndX(); //approxi
+    		bigSpace = ((spaceWithPrevious/item.getTextPosition().getWidth()) > 2); //是否间距很大
+    	}
+    	//System.out.println(lineBuilder);
+    	String preStr = lineBuilder.toString().trim();
+    	if (item.isWordSeparator())
         {
+    		if (preStr.length()>0) {
             normalized.add(
-                    createWord(lineBuilder.toString(), new ArrayList<TextPosition>(wordPositions)));
+                    createWord(lineBuilder.toString(), new ArrayList<TextPosition>(wordPositions)));}
             lineBuilder = new StringBuilder();
             wordPositions.clear();
-        }
-        else
+        } else if (bigSpace) {
+        	if (preStr.length()>0) {
+                normalized.add(
+                        createWord(lineBuilder.toString(), new ArrayList<TextPosition>(wordPositions)));}
+            lineBuilder = new StringBuilder();
+            wordPositions.clear();
+            
+            TextPosition text = item.getTextPosition();
+            lineBuilder.append(text.getUnicode());
+            wordPositions.add(text);
+        } else if ( item.textPosition.getUnicode().trim().equals("") ){
+        	if(lineBuilder.length()>0) {
+        		if (preStr.length()>0) {
+                    normalized.add(
+                            createWord(lineBuilder.toString(), new ArrayList<TextPosition>(wordPositions)));}
+                lineBuilder = new StringBuilder();
+                wordPositions.clear();
+        	}
+        } else
         {
             TextPosition text = item.getTextPosition();
             lineBuilder.append(text.getUnicode());

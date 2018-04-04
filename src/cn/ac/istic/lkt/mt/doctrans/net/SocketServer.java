@@ -100,7 +100,7 @@ public class SocketServer extends ServerSocket {
 						 */
 						//success = translate.fileTranslate(winf, woutf, si.language, si.domain);
 						try {
-							translate.fileTranslate(winf, woutf, si.language, "SOCI", "REPORT");
+							translate.fileTranslate(winf, woutf, si.language, si.domain, "REPORT");
 							success = true;
 						}catch(Exception e) {
 							generateFailPdf(woutf, e.toString());
@@ -163,7 +163,7 @@ public class SocketServer extends ServerSocket {
 					
 					logger.info("Request detail:"+ strInfo);
 					// 返回正确信息
-					dos.writeUTF("1###success!");
+					dos.writeUTF("1###success");
 					dos.flush();
 					
 					fileName = sl[0].trim();
@@ -204,8 +204,8 @@ public class SocketServer extends ServerSocket {
 						if (donf.exists()){ // 翻译完成
 							fis = new FileInputStream(Global.absTransPath(ifn));
 			                  
-							dos.writeUTF("1###success"); //发送成功标签
-							dos.flush();
+							//dos.writeUTF("1###success"); //发送成功标签
+							//dos.flush();
 							// 将翻译文件发送给client
 							while ((length = fis.read(bytes, 0, bytes.length)) != -1) {
 								dos.write(bytes, 0, length);
@@ -269,8 +269,12 @@ public class SocketServer extends ServerSocket {
 		
 		Global.WORKD=System.getProperty("user.dir");
 		Global.prepareDir();
-		
-		String port = args[0];
+		String port = "8899";
+		try {
+			port = args[0];
+		}catch (Exception e) {
+			;
+		}
 		SocketServer server = null;
 		try {
 			server = new SocketServer(Integer.parseInt(port)); // 启动服务端

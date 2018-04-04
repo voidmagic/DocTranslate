@@ -28,4 +28,16 @@ public class StringHelper {
 		}
 		return true;
 	}
+	
+	public static boolean isNumeric(String s) {
+		for (char c: s.trim().toCharArray()) {
+			if (c == '%' || c=='.' || c== ',' || c== '％') {
+				continue;
+			}
+			if (c > 57 || c < 48) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

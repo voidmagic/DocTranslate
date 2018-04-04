@@ -22,8 +22,10 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Canvas;
+import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.pdfcleanup.PdfCleanUpLocation;
 import com.itextpdf.pdfcleanup.PdfCleanUpTool;
 
@@ -54,8 +56,6 @@ public class PDFTranslate {
 	private String docType = null;
 	private PdfDocument pdfDoc = null;
 	
-
-	
 	private static boolean drawBlock = false;
 	
 	public PDFTranslate(String language, String domain, String docType) {
@@ -71,8 +71,9 @@ public class PDFTranslate {
 		// 使用的字体
 		test = new Test();
 		try {
-			String cFontFile = Global.WORKD+"\\resources\\msyh.ttf";
-			String cBoldFontFile = Global.WORKD+"\\resources\\msyhbd.ttf";
+			//String cFontFile = Global.WORKD+"\\resources\\msyh.ttf";
+			String cFontFile = "C:/WINDOWS/Fonts/SIMYOU.TTF";    
+			String cBoldFontFile = "C:/WINDOWS/Fonts/msyhbd.ttf";
 			cFont = PdfFontFactory.createFont(cFontFile, PdfEncodings.IDENTITY_H, true);
 			cBoldFont = PdfFontFactory.createFont(cBoldFontFile, PdfEncodings.IDENTITY_H, true);
 		}catch (IOException e) { // 使用内嵌字体
@@ -111,8 +112,10 @@ public class PDFTranslate {
 		
 		// 先尝试stamper模式, 在原来的文件基础上清理文字区域，填入翻译后的内容; 
 		// stamper模式有可能碰到区域无法清理的情况，产生Exception，这样的话就不使用老文件，直接生成新文件
+		// 20180329 - try、catch部分代码实际上已经不再起作用，使用新的策略，直接在原文档之上贴上新的底色为白色的文字层，代码见finally部分
 		try { 
 			PdfDocument writeDoc = new PdfDocument(reader, writer);
+			pdfDoc = writeDoc;
 			int pageNum = textLayout.size();
 			//清理 原有文字
 			for (int pageid = 0; pageid < pageNum; pageid++) {
@@ -130,11 +133,12 @@ public class PDFTranslate {
 					cleanUpLocations.add(new PdfCleanUpLocation(pageid + 1, rec, DeviceRgb.WHITE));
 				}
 				PdfCleanUpTool cleaner = new PdfCleanUpTool(writeDoc, cleanUpLocations);
-				cleaner.cleanUp();
+				//cleaner.cleanUp();
 			}
-			pdfDoc = writeDoc;
-		}catch (com.itextpdf.io.IOException e) { 
-			e.printStackTrace();
+			
+		//}catch (com.itextpdf.io.IOException| java.nio.charset.UnsupportedCharsetException | javax.imageio.IIOException | java.lang.RuntimeException e ) { 
+		}catch (java.lang.RuntimeException e ) { 
+				e.printStackTrace();
 			PdfDocument readDoc = new PdfDocument(reader);
 			PdfDocument writeDoc = new PdfDocument(writer);
 			for(int i = 0 ; i < filteredTP.size(); i++) {
@@ -147,36 +151,94 @@ public class PDFTranslate {
 				ArrayList<WordWithTextPositions> filteredTextAreas = filteredTP.get(j);
 				PdfPage pdfPage = pdfDoc.getPage(j+1);
 				float pageHeight = pdfPage.getPageSize().getHeight();
+				float pageWidth = pdfPage.getPageSize().getWidth();
 				PdfCanvas pdfCanvas = new PdfCanvas(pdfPage);
 				for (int i = 0; i < filteredTextAreas.size(); i++) {
 					WordWithTextPositions ta = filteredTextAreas.get(i);
-					float fontsize = ta.getFontSizeInPt();
+					float srcFontsize = ta.getFontSizeInPt();
 					Rectangle rec = getArea(ta, pageHeight);
-
-					if (drawBlock) {
-						pdfCanvas.setLineWidth(0.5f);
-						pdfCanvas.setStrokeColor(ColorConstants.RED);
-						pdfCanvas.rectangle(rec);
-						pdfCanvas.stroke();
-					}
 					
-					float transFontSize = fontsize;
-					if (tgtLang.equals("EN")){
-						transFontSize = fontsize - 2;
-					}
+					// 覆盖的时候有的下边界覆盖不住，稍作微调
+					rec.setY(rec.getY()-1);
+					rec.setHeight(rec.getHeight()+1);
+					
 					String srcFontName = ta.getFont().getName().toLowerCase();
 					PdfFont tgtFont = cFont;
+					
 					if (srcFontName.contains("bold")) {
 						tgtFont = cBoldFont;
 					}
-					Canvas canvas = new Canvas(pdfCanvas, pdfDoc, rec);
+					
 					String tr = translate(ta);
-					Text text = new Text(tr).setFont(tgtFont).setFontSize(transFontSize);
-					System.out.println("render: " + text.getText());
+					float tgtAscent = tgtFont.getAscent(tr, srcFontsize);
+					float tgtDescent = tgtFont.getDescent(tr, srcFontsize);
+					float tgtFontSize = srcFontsize - 1 ;
+					
+					//System.out.println("SRC: "+ta.getText());
+					//System.out.println("TGT: "+tr);
+					
+					pdfCanvas.setColor(ColorConstants.WHITE, true);
+					pdfCanvas.setStrokeColor(ColorConstants.WHITE);
+					pdfCanvas.setLineWidth(0.5f);
+					if (drawBlock) {
+						pdfCanvas.setStrokeColor(ColorConstants.RED);
+					}
+					pdfCanvas.setStrokeColor(ColorConstants.RED);
+					pdfCanvas.rectangle(rec);
+					
+					pdfCanvas.setColor(ColorConstants.BLACK, true);
+					
+					
+					Text text = new Text(tr);
+					
+					float textLength = tgtFont.getWidth(tr, tgtFontSize);
+					float textHeight = tgtAscent + tgtDescent;
+					float neededLines = (float)Math.ceil(textLength/rec.getWidth());
+					float canvasLines = (float)Math.floor(rec.getHeight()/tgtFontSize);
+					//System.err.println("[SRC] "+ta.getText()+" [textWidth] "+ textLength + " [LineWidth] "+ rec.getWidth());
+					if (canvasLines == 1) {
+						while(textLength > rec.getWidth() && rec.getHeight() < (textHeight+1) ) {
+							tgtFontSize -= 1;
+							textLength = tgtFont.getWidth(tr, tgtFontSize);
+						}
+					}else if( this.language.equals("CN2EN")) {
+						while (neededLines > canvasLines+1 ) {
+							tgtFontSize -= 1;
+							textLength = tgtFont.getWidth(tr, tgtFontSize);
+							neededLines = (float)Math.ceil(textLength/rec.getWidth());
+							canvasLines = (float)Math.floor(rec.getHeight()/tgtFontSize);
+						}
+						
+					}else  {
+						tgtFontSize += 1;
+						while (neededLines > canvasLines ) {
+							tgtFontSize -= 1;
+							textLength = tgtFont.getWidth(tr, tgtFontSize);
+							neededLines = (float)Math.ceil(textLength/rec.getWidth());
+							canvasLines = (float)Math.floor(rec.getHeight()/tgtFontSize);
+						}
+					}
+					
+					text.setFont(tgtFont).setFontSize(tgtFontSize);
+					
+					rec.setY(rec.getY()-tgtDescent);
+					Canvas canvas = new Canvas(pdfCanvas, pdfDoc, rec);
+					
+					float centerPosition = rec.getX()+rec.getWidth()/2;
+					
+					
 					Paragraph p = new Paragraph().add(text);
+					if (Math.abs(centerPosition-pageWidth/2) < 30 && canvasLines < 2 && (rec.getWidth()< pageWidth/2 || ta.getFont().getName().toLowerCase().contains("bold"))) {
+						p.setTextAlignment(TextAlignment.CENTER);
+					}
 					p.setMarginTop(0);
+					//p.setBorder(new SolidBorder(ColorConstants.BLACK, 0.5f));
 					//p.setFirstLineIndent(10);
-					p.setMultipliedLeading(1.05f);
+					
+					p.setMultipliedLeading(1.0f);
+					p.setBackgroundColor(ColorConstants.WHITE);
+					canvas.setBackgroundColor(ColorConstants.WHITE);
+					
 					canvas.add(p);
 					canvas.close();
 
@@ -206,6 +268,9 @@ public class PDFTranslate {
 					continue;
 				}
 				
+				if (text.equals("•")) {
+					continue;
+				}
 				/*
 				if (srcLang.equals(EN) && text.equals("Reference") && tp.getFont().getName().toLowerCase().contains("bold")) {
 					filteredPosition.add(newPagePosition);
@@ -245,7 +310,7 @@ public class PDFTranslate {
 				if (s.charAt(0) == '•' && t.trim().length() > 0) {
 					t = " •  " + t;
 				}
-				System.out.println("[Translation]:" + t);
+				//System.out.println("[Translation]:" + t);
 				if (t.trim().length() > 0) {
 					sb.append(t + "\n");
 				}

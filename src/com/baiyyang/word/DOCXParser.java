@@ -1,10 +1,12 @@
 package com.baiyyang.word;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 
@@ -25,7 +27,7 @@ public class DOCXParser {
 	* @return List<String>     
 	* @throws  
 	*/
-	public List<String> parser(String filepath) {
+	public List<String> parser(String filepath) throws OfficeXmlFileException{
 	    
 		List<String> contents = new ArrayList<>();
 		try {
@@ -42,7 +44,8 @@ public class DOCXParser {
 				//System.out.println("第" + count + "段：" + paragraph.getText());
 				count++;
 			}
-		} catch (Exception e) {
+			document.close();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -3,6 +3,8 @@ package com.baiyyang.operation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
+
 import com.baiyyang.global.Global;
 import com.baiyyang.server.test.Test;
 import com.baiyyang.word.DOCXParser;
@@ -39,7 +41,7 @@ public class DOCXTranslate {
 	* @return boolean     
 	* @throws  
 	*/
-	public boolean translate(Global global, String language, String domain){
+	public boolean translate(Global global, String language, String domain) throws OfficeXmlFileException{
 		
 		List<String> contents = new ArrayList<>();
 		contents = parser.parser(global.getReadPath());

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
+
 import com.baiyyang.global.Global;
 import com.baiyyang.server.test.Test;
 import com.baiyyang.word.DOCParser;
@@ -40,7 +42,7 @@ public class DOCTranslate {
 	* @return boolean     
 	* @throws  
 	*/
-	public boolean translate(Global global, String language, String domain){
+	public boolean translate(Global global, String language, String domain) throws OfficeXmlFileException{
 		
 		List<String> contents = new ArrayList<>();
 		contents = parser.parser(global.getReadPath());

@@ -14,6 +14,8 @@ import java.io.PrintStream;
 import com.baiyyang.global.Global;
 import com.baiyyang.server.test.Test;
 
+import cn.ac.istic.lkt.mt.utils.CharDetect;
+
 /**  
 * @ClassName: TXTTranslate  
 * @Description: txt文件翻译类
@@ -42,7 +44,9 @@ public class TXTTranslate {
 		InputStreamReader reader = null;
 		BufferedReader bf = null;
 		try {
-			reader = new InputStreamReader(new FileInputStream(file),"UTF-8");
+			String fileEnc = CharDetect.detect(global.getReadPath());
+			System.err.println(fileEnc);
+			reader = new InputStreamReader(new FileInputStream(file),fileEnc);
 			bf = new BufferedReader(reader);
 			String line = "";
 			String paragraph = "";			
@@ -149,5 +153,4 @@ public class TXTTranslate {
 			}
 		}
 	}
-
 }

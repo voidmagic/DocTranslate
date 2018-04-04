@@ -2,11 +2,13 @@ package com.baiyyang.word;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hwpf.extractor.WordExtractor; 
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException; 
 
 /**  
 * @ClassName: DOCParser  
@@ -25,7 +27,7 @@ public class DOCParser {
 	* @return List<String>     
 	* @throws  
 	*/
-	public List<String> parser(String filename) {  
+	public List<String> parser(String filename) throws OfficeXmlFileException{  
 		 
 		 List<String> content = new ArrayList<>();
 		 
@@ -44,7 +46,7 @@ public class DOCParser {
             }
             ex.close();
             
-        } catch (Exception e) {  
+        } catch (IOException e) {  
             e.printStackTrace();  
         }  
         return content;

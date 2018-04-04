@@ -35,6 +35,8 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 
+import cn.ac.istic.lkt.mt.utils.StringHelper;
+
 /**
  * @author Chongde SHI
  *
@@ -50,13 +52,14 @@ public class PDFTextLayout extends PDFTextStripper{
 
 	public PDFTextLayout() throws IOException {
 		super();
-
+		newPageLines = new ArrayList<ArrayList<WordWithTextPositions>>();
 	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String src = "D:/e5.pdf";
-		String tgt = "D:/e5.copy.pdf";
+		//String src = "D:/2016-EU-DIRECTIVE.pdf";
+		String src = "D:/2016-EU-ICT.pdf";
+		String tgt = "D:/a.layout.pdf";
 		try {
 			PDFTextLayout tl = new PDFTextLayout();
 			tl.process(src, tgt, EN, ARTICLE);
@@ -65,6 +68,31 @@ public class PDFTextLayout extends PDFTextStripper{
 		}
 	}
 
+	/*
+	 * 生成一个新的文档，给每个合并的分块添加红色外框，主要是debug用
+	 */
+	public void process(String src, String tgt, String language, String docType) {
+		try {
+			process(src, language, docType);
+			// itext
+			PdfReader reader = new PdfReader(src);
+			PdfWriter writer = new PdfWriter(tgt);
+			PdfDocument pdfDoc = new PdfDocument(reader, writer);
+
+			
+			for (ArrayList<WordWithTextPositions> lines : newPageLines) {
+				for (WordWithTextPositions wtp : lines) {;
+					;
+					//System.out.println(wtp);
+				}
+			}
+			//drawLineBlocks(pdfDoc, pageLines);
+			drawLineBlocks(pdfDoc, newPageLines);
+			pdfDoc.close();
+		} catch (IOException e) {
+				e.printStackTrace();
+		} 
+	}
 	/**
 	 * 
 	 * @param src 输入文件地址
@@ -72,6 +100,7 @@ public class PDFTextLayout extends PDFTextStripper{
 	 * @return  
 	 */
 	public ArrayList<ArrayList<WordWithTextPositions>> getTextLayout(String src, String language, String docType) throws IOException{
+		
 		process(src, language, docType);
 		return newPageLines;
 	}
@@ -93,6 +122,8 @@ public class PDFTextLayout extends PDFTextStripper{
 			StringWriter sw = new StringWriter();
 			writeText(pdDocument, sw);
 			pdDocument.close();
+			
+			//filterWTP();
 			organize();
 			// System.out.println(sw.toString());
 			return 1;
@@ -100,28 +131,23 @@ public class PDFTextLayout extends PDFTextStripper{
 	}
 
 	/*
-	 * 生成一个新的文档，给每个合并的分块添加红色外框，主要是debug用
+	 * 过滤WTP中的数字等
 	 */
-	public void process(String src, String tgt, String language, String docType) {
-		try {
-			process(src, language, docType);
-			// itext
-			PdfReader reader = new PdfReader(src);
-			PdfWriter writer = new PdfWriter(tgt);
-			PdfDocument pdfDoc = new PdfDocument(reader, writer);
-
-			for (ArrayList<WordWithTextPositions> lines : newPageLines) {
-				for (WordWithTextPositions wtp : lines) {
-					System.out.println(wtp);
-				}
+	public int filterWTP() {
+		ArrayList<ArrayList<WordWithTextPositions>> filteredPageLines = new ArrayList<ArrayList<WordWithTextPositions>>();
+		for (ArrayList<WordWithTextPositions> page : pageLines) {
+			ArrayList<WordWithTextPositions> filteredLines = new ArrayList<WordWithTextPositions>();
+			for (WordWithTextPositions line : page) {
+				if (!StringHelper.isNumeric(line.text))
+					filteredLines.add(line);
 			}
-			//drawLineBlocks(pdfDoc, pageLines);
-			drawLineBlocks(pdfDoc, newPageLines);
-			pdfDoc.close();
-		} catch (IOException e) {
-				e.printStackTrace();
-		} 
+			filteredPageLines.add(filteredLines);
+		}
+		pageLines = filteredPageLines;
+		return 1;
 	}
+	
+	
 
 	public void drawLineBlocks(PdfDocument tgtDoc, ArrayList<ArrayList<WordWithTextPositions>> pageLines)
 			throws IOException {
@@ -144,7 +170,7 @@ public class PDFTextLayout extends PDFTextStripper{
 				float height = wtp.Height;
 
 				pdfCanvas.setLineWidth(0.5f);
-				pdfCanvas.setStrokeColor(ColorConstants.RED);
+				pdfCanvas.setStrokeColor(ColorConstants.MAGENTA);
 				Rectangle rectangle = new Rectangle(x1, y1, width, height);
 				pdfCanvas.rectangle(rectangle);
 				pdfCanvas.stroke();
@@ -153,7 +179,15 @@ public class PDFTextLayout extends PDFTextStripper{
 		}
 	}
 
+	protected void organizeEN() {
+		
+	}
+	
+	protected void organizeCN() {
+		
+	}
 	protected void organize() {
+		
 		HashMap<Float, Integer> spaceFreq = new HashMap<Float, Integer>();
 		HashMap<Float, Integer> continueSpaceFreq = new HashMap<Float, Integer>();
 		WordWithTextPositions previous = null;
@@ -186,7 +220,7 @@ public class PDFTextLayout extends PDFTextStripper{
 		HashSet<Float> validSpaceSet = new HashSet<Float>();
 		List<Map.Entry<Float, Integer>> validSpaceList = new ArrayList<Map.Entry<Float, Integer>>(continueSpaceFreq.entrySet());
 		for (Map.Entry<Float, Integer> entry : validSpaceList) {
-			if (entry.getValue()>2 && entry.getKey() > 0) {
+			if (entry.getValue()>0 && entry.getKey() > 0) {
 				validSpaceSet.add(entry.getKey());
 			}
 		}
@@ -203,17 +237,20 @@ public class PDFTextLayout extends PDFTextStripper{
 			// System.out.println(entry.getKey()+" "+ entry.getValue());
 		}
 		
-		if (list.size() == 0) {
-			return;
+		float basicSpace = 0;
+		if (list.size() != 0) { //pdf 文件只有一行或者内容为空
+			basicSpace = list.get(0).getKey();
 		}
-		float basicSpace = list.get(0).getKey();
-
 		// 再次遍历全文，把正文行进行合并；
-		newPageLines = new ArrayList<ArrayList<WordWithTextPositions>>();
+		
 		previous = null;
+		previousSpace = 0;
 		float basicSentLength = 0f;
 		ArrayList<WordWithTextPositions> temp = new ArrayList<WordWithTextPositions>();
 		for (ArrayList<WordWithTextPositions> page : pageLines) {
+			previous = null;
+			previousSpace = 0;
+			basicSentLength = 0f;
 			ArrayList<WordWithTextPositions> newpage = new ArrayList<WordWithTextPositions>();
 
 			for (int i = 0; i< page.size(); i++) {
@@ -254,16 +291,31 @@ public class PDFTextLayout extends PDFTextStripper{
 					//fontp.getName().equals(fontc.getName())
 					//if (space > fontsizec && (fontp.getName().equals(fontc.getName())|| fontp.getFontDescriptor().isItalic() ||
 					//    fontc.getFontDescriptor().isItalic() )&& fontsizep == fontsizec && space / fontsizec < 1.8) {
-					if ( (validSpaceSet.contains(space) ||  Math.abs(space-basicSpace) < 3) && ( space < fontsizep*2) &&           // 上下行间距合适
-							(fontp.getName().equals(fontc.getName())|| line.fontFreq.size()>1 ||  previous.fontFreq.size()>1 ) &&  // 相同字体或者混合字体
+					float currCenter = line.getXstart() + line.getWidth()/2;
+					float previousCenter = previous.getXstart() + previous.getWidth()/2;
+					float currEnd = line.getXstart()+line.getWidth();
+					float previousEnd = previous.getXstart()-previous.getWidth();
+					
+					String currText = line.text;
+					String previousText = previous.text.trim();
+					//System.err.println(line.text+ " "+ currCenter+" "+previousCenter);
+					// 当前首字母大写&前一行最后一个字母不是句读  或者当前首字母小写
+					//System.out.println(line.text);
+					if ( ( (StringHelper.isUpCase(currText.charAt(0)) && previousText.charAt(previousText.length()-1) != '.' ) || !StringHelper.isUpCase(currText.charAt(0))) &&                                                            // 非大写
+							//(validSpaceSet.contains(space) ||  Math.abs(space-basicSpace) < 3) && 
+							space < fontsizep*2 &&           // 上下行间距合适
+							(fontp.getName().equals(fontc.getName()) || line.fontFreq.size()>1 ||  previous.fontFreq.size()>1 ) &&  // 相同字体或者混合字体
 							fontsizep == fontsizec &&                                                                              // 字体大小相同
-							( Math.abs(line.getXstart()-previous.getXstart()) < 20 ||                                              // 左端对齐差的不多
-									Math.abs(line.getXstart()+line.getWidth() -previous.getXstart()-previous.getWidth()) < 5  ||   // 右端对齐差的不多
-							  (line.text.charAt(0) <= 122 && line.text.charAt(0) >=97) ) &&                                        //新的一行首字母小写
-					        line.text.charAt(0) != '•' && 
-					        currColor.equals(previousColor)  )                                     // 文字颜色
+							(Math.abs(line.getXstart()-previous.getXstart()) < 20 || Math.abs(currEnd - previousEnd)<5) &&         // 左端对齐差的不多, 同时不能比前一句长
+							( (previousSpace > 0 && Math.abs(previousSpace - space) < 2) || previousSpace <=0) &&
+									//Math.abs(currEnd -previousEnd) < 5  ||   // 右端对齐差的不多
+									//Math.abs(currCenter - previousCenter) < 5 ||                                                   //居中
+					        currColor.equals(previousColor)   &&                                                                          // 文字颜色
+					        (space > line.Height || Math.abs(line.Height - space) < 2 ) &&  //允许有部分overlap
+					        (line.getYstart()+line.getHeight()>previous.getYstart())  )                       
 					{ 
 						temp.add(line);
+						previousSpace = space;
 					} else {
 						if (temp.size() > 0) {
 							WordWithTextPositions block = combineLines(temp);
@@ -273,8 +325,10 @@ public class PDFTextLayout extends PDFTextStripper{
 						}
 						temp = new ArrayList<WordWithTextPositions>();
 						temp.add(line);
+						previousSpace = -1.0f;
 					}
 					previous = line;
+					
 				}
 			}
 			if (temp.size() > 0) {
@@ -287,7 +341,6 @@ public class PDFTextLayout extends PDFTextStripper{
 			temp = new ArrayList<WordWithTextPositions>();
 			newPageLines.add(newpage);
 		}
-
 	}
 
 	private WordWithTextPositions combineLines(ArrayList<WordWithTextPositions> lines) {
@@ -300,9 +353,11 @@ public class PDFTextLayout extends PDFTextStripper{
 			
 			if( temp == null) {
 				temp = new WordWithTextPositions(line.text, line.textPositions);
-				
 			}else {
-				temp.appendV(line, maxWidth);
+				boolean success = temp.appendV(line, maxWidth);
+				if (!success) {
+					//System.err.println("Combine failed."+ line.text);
+				}
 			}
 		}
 		return temp;
