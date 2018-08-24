@@ -43,27 +43,6 @@ public class PDFTranslationWriter {
         }
     }
 
-    public void drawBlackBlock(List<LineText> textWithRectangles, int pageNumber) {
-        Color blackColor = new DeviceRgb(0,0,0);
-        PdfCanvas canvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
-        canvas.setStrokeColor(blackColor);
-        for (LineText textWithRectangle: textWithRectangles) {
-            Rectangle rectangle = textWithRectangle.getRectangle();
-            canvas.rectangle(rectangle);
-        }
-        canvas.stroke();
-    }
-
-    public void drawWhiteBlock(List<LineText> textWithRectangles, int pageNumber) {
-        Color whiteColor = new DeviceRgb(255,255,255);
-        PdfCanvas canvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
-        canvas.setFillColor(whiteColor);
-        for (LineText textWithRectangle: textWithRectangles) {
-            Rectangle rectangle = textWithRectangle.getRectangle();
-            canvas.rectangle(rectangle);
-        }
-        canvas.fill();
-    }
 
     public void drawTranslationWithWhiteBlock(List<LineText> textWithRectangles, int pageNumber) {
         Color whiteColor = new DeviceRgb(255,255,255);
@@ -120,7 +99,7 @@ public class PDFTranslationWriter {
         float actualFontSize = (float) (Math.sqrt(scale) * 5);
         while (true) {
             float actualWidth = this.font.getWidth(text, actualFontSize);
-            float actualHeight = (float) ((this.font.getAscent(text, actualFontSize) - this.font.getDescent(text, actualFontSize)) * lineScale);
+            float actualHeight = (this.font.getAscent(text, actualFontSize) - this.font.getDescent(text, actualFontSize)) * lineScale;
             int lineCapacity = (int) (rectangle.getHeight() / actualHeight);
 
             if (lineCapacity * rectangle.getWidth() > actualWidth)
