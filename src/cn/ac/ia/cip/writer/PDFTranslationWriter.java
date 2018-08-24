@@ -28,10 +28,10 @@ public class PDFTranslationWriter {
 
     public PDFTranslationWriter(String source, String target, Test test, String language, String domain) throws IOException {
         pdfDocument = new PdfDocument(new PdfReader(source), new PdfWriter(target));
+
         this.test = test;
         this.language = language;
         this.domain = domain;
-
 
         if (this.language.matches(".*?CN")) {
             this.font = PdfFontFactory.createFont("STSong-Light", "UniGB-UCS2-H", true);
@@ -65,10 +65,6 @@ public class PDFTranslationWriter {
         canvas.fill();
     }
 
-    public void removeText() {
-
-    }
-
     public void drawTranslationWithWhiteBlock(List<LineText> textWithRectangles, int pageNumber) {
         Color whiteColor = new DeviceRgb(255,255,255);
         Color blackColor = new DeviceRgb(0,0,0);
@@ -99,15 +95,10 @@ public class PDFTranslationWriter {
             result = this.test.test(lang, domain, source);
         } catch (Exception e) {
             result = "翻译出错！";
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
-        Text translationText = new Text(result).setFontSize(8);
-
-        if (this.language.matches(" \\s+2CN"))
-            translationText = translationText.setFont(this.font);
-
-        return translationText;
+        return new Text(result).setFont(this.font);
     }
 
     private float calculateFontSize(Rectangle rectangle, String text) {
@@ -118,7 +109,6 @@ public class PDFTranslationWriter {
             return calculateFontSizeWithScale(rectangle, text, (float) 1.8);
         }
     }
-
 
     private float calculateFontSizeWithScale(Rectangle rectangle, String text, float lineScale) {
         // 计算中文日语等方块字的大小

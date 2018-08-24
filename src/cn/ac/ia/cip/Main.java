@@ -1,13 +1,8 @@
 package cn.ac.ia.cip;
 
-import cn.ac.ia.cip.reader.LineText;
-import cn.ac.ia.cip.reader.PDFTextLocationStripper;
-import cn.ac.ia.cip.writer.PDFTranslationWriter;
-import org.apache.pdfbox.pdmodel.PDDocument;
+import com.baiyyang.operation.PDFTranslateWQ;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 
 public class Main {public static void main(String[] args) throws IOException {
@@ -18,23 +13,14 @@ public class Main {public static void main(String[] args) throws IOException {
 
     private static void process() throws IOException {
         String filename = "zhoulei";
-        String language = PDFTextLocationStripper.EN;
+        String language = "EN2CN";
 
         String source = "example/" + filename + ".pdf";
         String target = "example/" + filename + "-output.pdf";
 
-        final PDDocument document = PDDocument.load(new File(source));
-        int num = document.getNumberOfPages();
-        document.close();
+        PDFTranslateWQ pdfTranslateWQ = new PDFTranslateWQ(language, "", "");
 
-        PDFTranslationWriter writer = new PDFTranslationWriter(source, target, new FakeTest(), "EN2CN", "");
-
-        for (int i = 1; i <= num; ++i) {
-            PDFTextLocationStripper stripper = new PDFTextLocationStripper(source, i, i, language);
-            List<LineText> textWithRectangles = stripper.getTextWithRectangle();
-            writer.drawTranslationWithWhiteBlock(textWithRectangles, i);
-            writer.drawBlackBlock(textWithRectangles, i);
-        }
-        writer.close();
+        pdfTranslateWQ.translateFile(source, target, new FakeTest());
     }
+
 }
