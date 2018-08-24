@@ -17,7 +17,7 @@ import cn.ac.istic.lkt.mt.doctrans.pdflayout.PDFTextLayout;
 public class FileTranslateMain {
 	public static void TextEN2CN() {
 		Translate translate = new Translate();
-		String fi = "D:/2016-EU-DIRECTIVE.pdf";
+		String fi = "D:/e5.pdf";
 		String fo = "D:/a.result.pdf";
 		String fl = "D:/a.layout.pdf";
 

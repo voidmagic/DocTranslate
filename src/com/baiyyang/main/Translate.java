@@ -6,14 +6,11 @@ import java.io.UnsupportedEncodingException;
 
 import javax.xml.ws.WebServiceException;
 
+import com.baiyyang.operation.*;
 import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 
 import com.baiyyang.file.MyDelete;
 import com.baiyyang.global.Global;
-import com.baiyyang.operation.DOCTranslate;
-import com.baiyyang.operation.DOCXTranslate;
-import com.baiyyang.operation.PDFTranslate;
-import com.baiyyang.operation.TXTTranslate;
 
 /**
  * @ClassName: Translate
@@ -109,7 +106,7 @@ public class Translate {
 				}
 			}
 
-			PDFTranslate translate = new PDFTranslate(language, domain, docType);
+			PDFTranslateWQ translate = new PDFTranslateWQ(language, domain, docType);
 			
 			translate.translate(global, userAbsolutePath);
 			
