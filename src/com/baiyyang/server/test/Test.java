@@ -54,6 +54,10 @@ public class Test {
 	public Test(){
 		stmt = new STMTWebService().getSTMTWebPort();
 	}
+
+	public Test(boolean b){
+
+	}
 	
 	/**  
 	* @Title: test  

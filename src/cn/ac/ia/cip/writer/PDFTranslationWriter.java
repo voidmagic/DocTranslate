@@ -41,8 +41,31 @@ public class PDFTranslationWriter {
             // todo japanese font
             this.font = PdfFontFactory.createFont("STSong-Light", "UniGB-UCS2-H", true);
         }
+
+        this.font = PdfFontFactory.createFont();
     }
 
+    public void drawWhiteBlock(List<LineText> textWithRectangles, int pageNumber) {
+        Color whiteColor = new DeviceRgb(255,255,255);
+        PdfCanvas canvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
+        canvas.setFillColor(whiteColor);
+        for (LineText textWithRectangle: textWithRectangles) {
+            Rectangle rectangle = textWithRectangle.getRectangle();
+            canvas.rectangle(rectangle);
+        }
+        canvas.fill();
+    }
+
+    public void drawBlackBlock(List<LineText> textWithRectangles, int pageNumber) {
+        Color blackColor = new DeviceRgb(0,0,0);
+        PdfCanvas canvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
+        canvas.setStrokeColor(blackColor);
+        for (LineText textWithRectangle: textWithRectangles) {
+            Rectangle rectangle = textWithRectangle.getRectangle();
+            canvas.rectangle(rectangle);
+        }
+        canvas.stroke();
+    }
 
     public void drawTranslationWithWhiteBlock(List<LineText> textWithRectangles, int pageNumber) {
         Color whiteColor = new DeviceRgb(255,255,255);
@@ -56,6 +79,25 @@ public class PDFTranslationWriter {
             rectangle.setHeight(rectangle.getHeight() + 3);
             pdfCanvas.rectangle(rectangle);
             pdfCanvas.fill();
+
+            Text translationText = getTranslationText(this.language, this.domain, textWithRectangle.getText());
+
+            float fontSize = calculateFontSize(rectangle, translationText.getText());
+            translationText = translationText.setFontSize(fontSize);
+
+            pdfCanvas.setFillColor(blackColor);
+            Paragraph p = new Paragraph(translationText).setMultipliedLeading(1);
+            new Canvas(pdfCanvas, pdfDocument, textWithRectangle.getRectangle()).add(p).close();
+        }
+    }
+
+    public void drawTranslation(List<LineText> textWithRectangles, int pageNumber) {
+        Color blackColor = new DeviceRgb(0,0,0);
+        PdfCanvas pdfCanvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
+
+        for (LineText textWithRectangle: textWithRectangles) {
+
+            Rectangle rectangle = textWithRectangle.getRectangle();
 
             Text translationText = getTranslationText(this.language, this.domain, textWithRectangle.getText());
 
@@ -113,6 +155,10 @@ public class PDFTranslationWriter {
 
 
     public void close() {
-        pdfDocument.close();
+        try {
+            pdfDocument.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

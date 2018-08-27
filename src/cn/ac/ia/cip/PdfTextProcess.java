@@ -32,11 +32,11 @@ public class PdfTextProcess
 {
     public static void main(String[] args) throws IOException
     {
-        String infile = "example/cn.pdf";;
-        String outfile = "example/cn1.pdf";
-        PdfTextProcess rw = new PdfTextProcess();
-        //rw.replace(infile, outfile);
-        rw.removePDFText(infile, outfile);
+//        String infile = "example/cn.pdf";
+//        String outfile = "example/cn1.pdf";
+//        PdfTextProcess rw = new PdfTextProcess();
+//        //rw.replace(infile, outfile);
+//        rw.removePDFText(infile, outfile);
     }
 
     public void removePDFText(String infile,String outfile)
@@ -55,7 +55,7 @@ public class PdfTextProcess
         } 
     }
 
-    public void removePageText(PDPage page, PDDocument document) throws IOException
+    private void removePageText(PDPage page, PDDocument document) throws IOException
     {
         PDFStreamParser parser = new PDFStreamParser(page);
         parser.parse();
@@ -83,7 +83,8 @@ public class PdfTextProcess
         page.setContents(newContents);
         processResources(page.getResources());
     }
-    public void processResources(PDResources resources) throws IOException
+
+    private void processResources(PDResources resources) throws IOException
     {
         Iterable<COSName> names = resources.getXObjectNames();
         for (COSName name : names)
@@ -95,7 +96,7 @@ public class PdfTextProcess
             }
         }
     }
-    public void removeAllText(PDFormXObject xobject) throws IOException
+    private void removeAllText(PDFormXObject xobject) throws IOException
     {
         PDStream stream = xobject.getContentStream();
         PDFStreamParser parser = new PDFStreamParser(xobject);
@@ -123,7 +124,7 @@ public class PdfTextProcess
         out.close();
         processResources(xobject.getResources());
     }
-    public void addText(String oldFile, String newFile)
+    private void addText(String oldFile, String newFile)
     {
         try
         {

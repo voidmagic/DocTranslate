@@ -12,15 +12,15 @@ public class Main {public static void main(String[] args) throws IOException {
 }
 
     private static void process() throws IOException {
-        String filename = "zhoulei";
-        String language = "EN2CN";
+        String filename = "ok1";
+        String language = "EN2EN";
 
         String source = "example/" + filename + ".pdf";
         String target = "example/" + filename + "-output.pdf";
 
-        PDFTranslateWQ pdfTranslateWQ = new PDFTranslateWQ(language, "", "");
+        PDFTranslateWQ pdfTranslateWQ = new PDFTranslateWQ(language, "", "", new FakeTest());
 
-        pdfTranslateWQ.translateFile(source, target, new FakeTest());
+        pdfTranslateWQ.translateFile(source, target);
     }
 
 }
