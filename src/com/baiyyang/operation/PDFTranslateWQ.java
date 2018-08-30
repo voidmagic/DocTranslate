@@ -6,11 +6,6 @@ import cn.ac.ia.cip.reader.PDFTextLocationStripper;
 import cn.ac.ia.cip.writer.PDFTranslationWriter;
 import com.baiyyang.global.Global;
 import com.baiyyang.server.test.Test;
-import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.io.File;
