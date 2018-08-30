@@ -14,7 +14,7 @@ public class Main {
     }
 
     private static void process() throws IOException {
-        String filename = "ok1";
+        String filename = "example";
         String language = "EN2EN";
 
         String source = "example/" + filename + ".pdf";
