@@ -1,7 +1,10 @@
 package cn.ac.ia.cip.reader;
 
 import com.itextpdf.kernel.geom.Rectangle;
+import org.apache.pdfbox.contentstream.operator.color.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
+import org.apache.pdfbox.pdmodel.graphics.state.RenderingMode;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 
@@ -27,6 +30,20 @@ public class PDFTextLocationStripper extends PDFTextStripper {
 
 
     public PDFTextLocationStripper(String filename, int startPage, int endPage, String language) throws IOException {
+
+        addOperator(new SetStrokingColorSpace());
+        addOperator(new SetNonStrokingColorSpace());
+        addOperator(new SetStrokingDeviceCMYKColor());
+        addOperator(new SetNonStrokingDeviceCMYKColor());
+        addOperator(new SetNonStrokingDeviceRGBColor());
+        addOperator(new SetStrokingDeviceRGBColor());
+        addOperator(new SetNonStrokingDeviceGrayColor());
+        addOperator(new SetStrokingDeviceGrayColor());
+        addOperator(new SetStrokingColor());
+        addOperator(new SetStrokingColorN());
+        addOperator(new SetNonStrokingColor());
+        addOperator(new SetNonStrokingColorN());
+
         this.language = language;
         lineTextList = new ArrayList<>();
         this.initEndSymbol();
@@ -75,6 +92,9 @@ public class PDFTextLocationStripper extends PDFTextStripper {
 
     @Override
     protected void processTextPosition(TextPosition text) {
+
+        PDColor nonStrokingColor = getGraphicsState().getNonStrokingColor();
+
         float pageHeight = text.getPageHeight();
         float x = text.getXDirAdj();
         float y = pageHeight - text.getYDirAdj();
@@ -93,7 +113,11 @@ public class PDFTextLocationStripper extends PDFTextStripper {
 
         if (this.language.equals(PDFTextLocationStripper.EN)) w = (float) (h * 0.7);
 
-        lineTextList.add(new LineText(text.getUnicode(), rectangle, y, w, h));
+        try {
+            lineTextList.add(new LineText(text.getUnicode(), rectangle, y, w, h, nonStrokingColor.toRGB()));
+        } catch (IOException e) {
+            lineTextList.add(new LineText(text.getUnicode(), rectangle, y, w, h, 0));
+        }
     }
 
     private List<LineText> mergeRectanglesInLine() {
@@ -116,7 +140,9 @@ public class PDFTextLocationStripper extends PDFTextStripper {
             boolean sameLine = overlapVertical(currentLineText.getRectangle(), thisLineText.getRectangle());
             // 3. 连续的空格应该切分
             boolean consecutiveSpace = false; // (currentLineText.getText().endsWith(" ") || currentLineText.getText().endsWith("　")) && (thisLineText.getText().startsWith(" ") || thisLineText.getText().startsWith("　"));
-            if (margin && sameLine && (!consecutiveSpace)) {
+
+//            boolean sameColor = currentLineText.getTextColor() == thisLineText.getTextColor();
+            if (margin && sameLine && (!consecutiveSpace) /* && sameColor */ ) {
                 // 如果间隔过大，手动添加一个空格
                 if (Math.abs(thisLineText.getLeft() - currentLineText.getRight()) > Math.max(thisLineText.getCharHeightMin(), currentLineText.getCharHeightMin()) * 0.2)
                     thisLineText.setText(" " + thisLineText.getText());
@@ -158,7 +184,9 @@ public class PDFTextLocationStripper extends PDFTextStripper {
             boolean newLine = false; // newLine(currentLineText.getLastLineWidth(), thisLineText.getLastLineWidth(), currentLineText.getCharWidth(), thisLineText.getText());
             // 开始为项目标号
             boolean itemStart = thisLineText.getText().startsWith("•") || thisLineText.getText().trim().matches("\\d+(\\.) ([^\\d]+)");
-            if (overlap && margin && sameFont && !lineEnd && !newLine && !itemStart) {
+
+            boolean sameColor = thisLineText.getTextColor() == currentLineText.getTextColor();
+            if (overlap && margin && sameFont && !lineEnd && !newLine && !itemStart && sameColor) {
                 currentLineText.mergeWithLine(thisLineText);
             } else {
                 resultLineText.add(thisLineText);

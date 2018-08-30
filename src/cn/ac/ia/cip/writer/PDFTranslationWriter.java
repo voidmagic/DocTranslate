@@ -92,7 +92,7 @@ public class PDFTranslationWriter {
     }
 
     public void drawTranslation(List<LineText> textWithRectangles, int pageNumber) {
-        Color blackColor = new DeviceRgb(0,0,0);
+//        Color blackColor = new DeviceRgb(0,0,0);
         PdfCanvas pdfCanvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
 
         for (LineText textWithRectangle: textWithRectangles) {
@@ -104,7 +104,9 @@ public class PDFTranslationWriter {
             float fontSize = calculateFontSize(rectangle, translationText.getText());
             translationText = translationText.setFontSize(fontSize);
 
-            pdfCanvas.setFillColor(blackColor);
+            int rgb = textWithRectangle.getTextColor();
+            Color color = new DeviceRgb(rgb >> 16 & 0xff,rgb >> 8 & 0xff, rgb & 0xff);
+            pdfCanvas.setFillColor(color);
             Paragraph p = new Paragraph(translationText).setMultipliedLeading(1);
             new Canvas(pdfCanvas, pdfDocument, textWithRectangle.getRectangle()).add(p).close();
         }
@@ -133,6 +135,7 @@ public class PDFTranslationWriter {
 
     private float calculateFontSizeWithScale(Rectangle rectangle, String text, float lineScale) {
         // 计算中文日语等方块字的大小
+        if (text.length() < 1) text = text + ".";
         float unitWidth = this.font.getWidth(text, 5);
         float unitHeight = this.font.getAscent(text, 5) - this.font.getDescent(text, 5);
         float unitArea = unitHeight * unitWidth;

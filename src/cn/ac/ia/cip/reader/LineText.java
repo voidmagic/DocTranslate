@@ -1,6 +1,7 @@
 package cn.ac.ia.cip.reader;
 
 import com.itextpdf.kernel.geom.Rectangle;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 
 import java.util.List;
 
@@ -16,7 +17,9 @@ public class LineText {
     private float lastLineWidth;
     private float lastLineMargin;
 
-    public LineText(String text, Rectangle rectangle, float baseLine, float charWidth, float charHeight) {
+    private int textColor;
+
+    public LineText(String text, Rectangle rectangle, float baseLine, float charWidth, float charHeight, int color) {
         this.baseLine = baseLine;
         this.text = text;
         this.charWidth = charWidth;
@@ -26,6 +29,8 @@ public class LineText {
         this.lastLineWidth = rectangle.getWidth();
 
         this.lastLineMargin = charHeight * (float) 0.7;
+
+        this.textColor = color;
     }
 
     public String getText() {
@@ -165,5 +170,13 @@ public class LineText {
 
     public void setLastLineMargin(float lastLineMargin) {
         this.lastLineMargin = lastLineMargin;
+    }
+
+    public int getTextColor() {
+        return textColor;
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
     }
 }
