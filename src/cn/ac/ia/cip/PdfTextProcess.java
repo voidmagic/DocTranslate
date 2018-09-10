@@ -43,7 +43,7 @@ public class PdfTextProcess
     {        
         try(PDDocument document=PDDocument.load(new File(infile)))
         {
-                       
+            document.setAllSecurityToBeRemoved(true);
             for (PDPage page : document.getPages())
             {
                 removePageText(page, document);
