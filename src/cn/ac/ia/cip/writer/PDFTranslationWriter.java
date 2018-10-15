@@ -135,9 +135,12 @@ public class PDFTranslationWriter {
 
     private float calculateFontSizeWithScale(Rectangle rectangle, String text, float lineScale) {
         // 计算中文日语等方块字的大小
-//        if (text.length() < 1) text = text + ".";
+        if (text.length() < 1) text = text + ".";
         float unitWidth = this.font.getWidth(text, 5);
         float unitHeight = this.font.getAscent(text, 5) - this.font.getDescent(text, 5);
+        if (unitHeight < 1 && unitWidth < 1) unitHeight = unitWidth = 1;
+        else if (unitHeight < 1 || unitWidth < 1) unitHeight = unitWidth = Math.max(unitHeight, unitWidth);
+
         float unitArea = unitHeight * unitWidth;
         float totalArea = rectangle.getHeight() * rectangle.getWidth();
         float scale = totalArea / unitArea;
@@ -153,7 +156,7 @@ public class PDFTranslationWriter {
             actualFontSize -= 1;
         }
 
-        return actualFontSize;
+        return 10;
     }
 
 
