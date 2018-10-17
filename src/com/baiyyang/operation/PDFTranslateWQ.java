@@ -6,6 +6,8 @@ import cn.ac.ia.cip.reader.PDFTextLocationStripper;
 import cn.ac.ia.cip.writer.PDFTranslationWriter;
 import com.baiyyang.global.Global;
 import com.baiyyang.server.test.Test;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.io.File;
@@ -19,6 +21,11 @@ public class PDFTranslateWQ {
     private String language;
     private String srcLang;
     private String domain;
+
+    static {
+        Logger rootLogger = Logger.getRootLogger();
+        rootLogger.setLevel(Level.ERROR);
+    }
 
     public PDFTranslateWQ(String language, String domain, String docType) {
         this.domain = domain;
