@@ -22,11 +22,6 @@ public class PDFTranslateWQ {
     private String srcLang;
     private String domain;
 
-    static {
-        Logger rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.ERROR);
-    }
-
     public PDFTranslateWQ(String language, String domain, String docType) {
         this.domain = domain;
         this.language = language;
