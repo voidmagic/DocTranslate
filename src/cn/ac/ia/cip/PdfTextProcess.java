@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.pdfbox.contentstream.operator.Operator;
 import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.filter.MissingImageReaderException;
 import org.apache.pdfbox.pdfparser.PDFStreamParser;
 import org.apache.pdfbox.pdfwriter.ContentStreamWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -86,14 +87,16 @@ public class PdfTextProcess
 
     private void processResources(PDResources resources) throws IOException
     {
+        if (resources == null) return;
         Iterable<COSName> names = resources.getXObjectNames();
         for (COSName name : names)
         {
-            PDXObject xobject = resources.getXObject(name);
-            if (xobject instanceof PDFormXObject)
-            {
-                removeAllText((PDFormXObject) xobject);
-            }
+            try {
+                PDXObject xobject = resources.getXObject(name);
+                if (xobject instanceof PDFormXObject)
+                    removeAllText((PDFormXObject) xobject);
+            } catch (MissingImageReaderException ignored) {}
+
         }
     }
     private void removeAllText(PDFormXObject xobject) throws IOException

@@ -101,7 +101,12 @@ public class PDFTextLocationStripper extends PDFTextStripper {
         float h = text.getFontSizeInPt();
         float w = text.getWidthDirAdj();
 
-        float t = text.getFont().getFontDescriptor().getAscent() - text.getFont().getFontDescriptor().getDescent();
+        float t = 0;
+        try {
+            t = text.getFont().getFontDescriptor().getAscent() - text.getFont().getFontDescriptor().getDescent();
+        } catch (NullPointerException ignored) {
+        }
+
         float actualY;
         if (Math.abs(t) < 0.1) {
             actualY = y - h / 4;
