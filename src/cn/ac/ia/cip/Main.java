@@ -12,16 +12,10 @@ public class Main {
         System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
         java.util.logging.Logger.getLogger("org.apache.pdfbox").setLevel(java.util.logging.Level.OFF);
 
-        for(File f: new File("example").listFiles()) {
-            System.out.println(f.getName());
-            String source = "example/" + f.getName();
-            String target = "example/tmp.pdf";
-            String language = "EN2EN";
-            if (f.getName().startsWith("中文")) {
-                language = "CN2CN";
-            }
-            process(source, target, language);
-        }
+        String source = "example/38/" + "中文-ppt式图表文本1-pdf1.5.pdf";
+        String target = "example/tmp.pdf";
+        String language = "CN2EN";
+        process(source, target, language);
     }
 
     private static void process(String source, String target, String language) throws IOException {

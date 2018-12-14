@@ -157,7 +157,7 @@ public class PDFTranslationWriter {
             actualFontSize -= 1;
         }
 
-        return 10;
+        return actualFontSize;
     }
 
 
