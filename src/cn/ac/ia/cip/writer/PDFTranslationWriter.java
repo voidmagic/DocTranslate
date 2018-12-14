@@ -2,6 +2,7 @@ package cn.ac.ia.cip.writer;
 
 import cn.ac.ia.cip.reader.LineText;
 import com.baiyyang.server.test.Test;
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -34,7 +35,7 @@ public class PDFTranslationWriter {
         this.domain = domain;
 
         if (this.language.matches(".*?CN")) {
-            this.font = PdfFontFactory.createFont("STSong-Light", "UniGB-UCS2-H", true);
+            this.font = PdfFontFactory.createFont("resources/simsun.ttc,1", PdfEncodings.IDENTITY_H, false);
         } else if (this.language.matches(".*?EN")) {
             this.font = PdfFontFactory.createFont();
         } else if (this.language.matches(".*?JP")) {
@@ -42,7 +43,6 @@ public class PDFTranslationWriter {
             this.font = PdfFontFactory.createFont("STSong-Light", "UniGB-UCS2-H", true);
         }
 
-        this.font = PdfFontFactory.createFont();
     }
 
     public void drawWhiteBlock(List<LineText> textWithRectangles, int pageNumber) {

@@ -12,9 +12,9 @@ public class Main {
         System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
         java.util.logging.Logger.getLogger("org.apache.pdfbox").setLevel(java.util.logging.Level.OFF);
 
-        String source = "example/38/" + "中文-ppt式图表文本1-pdf1.5.pdf";
+        String source = "example/38/" + "英文-单栏式科技报告1-pdf1.4.pdf";
         String target = "example/tmp.pdf";
-        String language = "CN2EN";
+        String language = "EN2CN";
         process(source, target, language);
     }
 
