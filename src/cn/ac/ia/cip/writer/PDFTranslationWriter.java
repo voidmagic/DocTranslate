@@ -146,15 +146,10 @@ public class PDFTranslationWriter {
     }
 
     private float calculateFontSize(Rectangle rectangle, String text) {
-
-        if (this.language.matches(".*?CN") || this.language.matches(".*?JP")) {
-            return calculateFontSizeWithScale(rectangle, text, (float) 1.4);
-        } else {
-            return calculateFontSizeWithScale(rectangle, text, (float) 1.4);
-        }
+        return calculateFontSizeWithScale(rectangle, text);
     }
 
-    private float calculateFontSizeWithScale(Rectangle rectangle, String text, float lineScale) {
+    private float calculateFontSizeWithScale(Rectangle rectangle, String text) {
         // 计算字体大小
 
         // empty content
@@ -167,7 +162,7 @@ public class PDFTranslationWriter {
         float actualFontSize = 50;
         while (true) {
             float actualWidth = this.font.getWidth(text, actualFontSize);
-            int lineCapacity = (int) (maxHeight / actualFontSize / lineScale);
+            int lineCapacity = (int) (maxHeight / actualFontSize / (float) 1.4);
             if (lineCapacity * maxWidth > actualWidth)
                 break;
 

@@ -10,11 +10,12 @@ public class FakeTest extends Test {
     public FakeTest() {super(false);}
 
     public String test(String language, String domain, String source) {
-        int len = source.length();
-        if (language.split("2")[1].equals("EN"))
-            return randomChar(len*scale);
-        else
-            return randomChs(len/scale+1);
+//        int len = source.length();
+//        if (language.split("2")[1].equals("EN"))
+//            return randomChar(len*scale);
+//        else
+//            return randomChs(len/scale+1);
+        return source;
     }
 
     private String randomChar(int len) {
