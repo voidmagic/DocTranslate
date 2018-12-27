@@ -13,6 +13,7 @@ public class Main {
         java.util.logging.Logger.getLogger("org.apache.pdfbox").setLevel(java.util.logging.Level.OFF);
 
         String source = "example/38/" + "英文-单栏式科技报告1-pdf1.4.pdf";
+        source = "example/Core PSUR_1 EN.pdf";
         String target = "example/tmp.pdf";
         String language = "EN2CN";
         process(source, target, language);

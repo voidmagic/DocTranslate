@@ -92,7 +92,6 @@ public class PDFTranslationWriter {
     }
 
     public void drawTranslation(List<LineText> textWithRectangles, int pageNumber) {
-//        Color blackColor = new DeviceRgb(0,0,0);
         PdfCanvas pdfCanvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
 
         for (LineText textWithRectangle: textWithRectangles) {
@@ -112,13 +111,35 @@ public class PDFTranslationWriter {
         }
     }
 
+    public void drawTranslationWithBlackBox(List<LineText> textWithRectangles, int pageNumber) {
+        Color blackColor = new DeviceRgb(0,0,0);
+        PdfCanvas pdfCanvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
+        pdfCanvas.setStrokeColor(blackColor);
+        for (LineText textWithRectangle: textWithRectangles) {
+
+            Rectangle rectangle = textWithRectangle.getRectangle();
+
+            Text translationText = getTranslationText(this.language, this.domain, textWithRectangle.getText());
+
+            float fontSize = calculateFontSize(rectangle, translationText.getText());
+            translationText = translationText.setFontSize(fontSize);
+
+            int rgb = textWithRectangle.getTextColor();
+            Color color = new DeviceRgb(rgb >> 16 & 0xff,rgb >> 8 & 0xff, rgb & 0xff);
+            pdfCanvas.setFillColor(color);
+            Paragraph p = new Paragraph(translationText).setMultipliedLeading(1);
+            new Canvas(pdfCanvas, pdfDocument, rectangle).add(p).close();
+            pdfCanvas.rectangle(rectangle);
+        }
+        pdfCanvas.stroke();
+    }
+
     private Text getTranslationText(String lang, String domain, String source) {
         String result;
         try {
             result = this.test.test(lang, domain, source);
         } catch (Exception e) {
             result = "翻译出错！";
-//            e.printStackTrace();
         }
 
         return new Text(result).setFont(this.font);
@@ -129,32 +150,28 @@ public class PDFTranslationWriter {
         if (this.language.matches(".*?CN") || this.language.matches(".*?JP")) {
             return calculateFontSizeWithScale(rectangle, text, (float) 1.4);
         } else {
-            return calculateFontSizeWithScale(rectangle, text, (float) 1.8);
+            return calculateFontSizeWithScale(rectangle, text, (float) 1.4);
         }
     }
 
     private float calculateFontSizeWithScale(Rectangle rectangle, String text, float lineScale) {
-        // 计算中文日语等方块字的大小
-        if (text.length() < 1) text = text + ".";
-        float unitWidth = this.font.getWidth(text, 5);
-        float unitHeight = this.font.getAscent(text, 5) - this.font.getDescent(text, 5);
+        // 计算字体大小
 
-        if (unitHeight < 1 && unitWidth < 1) unitHeight = unitWidth = 1;
-        else if (unitHeight < 1 || unitWidth < 1) unitHeight = unitWidth = Math.max(unitHeight, unitWidth);
+        // empty content
+        if (text.length() < 1) return 1;
 
-        float unitArea = unitHeight * unitWidth;
-        float totalArea = rectangle.getHeight() * rectangle.getWidth();
-        float scale = totalArea / unitArea;
-        float actualFontSize = (float) (Math.sqrt(scale) * 5);
+        // 边界
+        float maxHeight = (float) (rectangle.getHeight() - 5);
+        float maxWidth = (float) (rectangle.getWidth() * 0.9);
+
+        float actualFontSize = 50;
         while (true) {
             float actualWidth = this.font.getWidth(text, actualFontSize);
-            float actualHeight = (this.font.getAscent(text, actualFontSize) - this.font.getDescent(text, actualFontSize)) * lineScale;
-            int lineCapacity = (int) (rectangle.getHeight() / actualHeight);
-
-            if (lineCapacity * rectangle.getWidth() > actualWidth)
+            int lineCapacity = (int) (maxHeight / actualFontSize / lineScale);
+            if (lineCapacity * maxWidth > actualWidth)
                 break;
 
-            actualFontSize -= 1;
+            actualFontSize -= 0.1;
         }
 
         return actualFontSize;

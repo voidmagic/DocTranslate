@@ -182,7 +182,11 @@ public class PDFTextLocationStripper extends PDFTextStripper {
             // 字体大小是否相同，如果上下有重叠，则不需要字体大小相同，因为可能出现某个字母占多行的情况
             boolean sameFont = overlap(currentLineText.getCharHeightMin(), currentLineText.getCharHeightMax(), thisLineText.getCharHeightMin(), thisLineText.getCharHeightMax()) || overlapVertical(currentLineText.getRectangle(), thisLineText.getRectangle());
             // 行间距小于字体高，如果上下有重叠同上
-            boolean margin = currentLineText.getBottom() - thisLineText.getTop() < currentLineText.getLastLineMargin() || currentLineText.getBottom() - thisLineText.getTop() < currentLineText.getCharHeightMax() * 0.5 || overlapVertical(currentLineText.getRectangle(), thisLineText.getRectangle());
+            boolean margin = (
+                    (currentLineText.getBottom() - thisLineText.getTop() < currentLineText.getLastLineMargin()
+                    || currentLineText.getBottom() - thisLineText.getTop() < currentLineText.getCharHeightMax() * 0.5)
+                    && (currentLineText.getTop() - thisLineText.getBottom() > -10))
+                    || overlapVertical(currentLineText.getRectangle(), thisLineText.getRectangle());
             // 是否到一段的结束，根据句号等规则
             boolean lineEnd = currentLineText.isLineEnd(this.specialWord, this.endChar);
             // 是否应该新行
