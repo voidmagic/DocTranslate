@@ -28,6 +28,7 @@ public class PDFTextLocationStripper extends PDFTextStripper {
 
     private String language;
 
+    private int rotate = 0;
 
     public PDFTextLocationStripper(String filename, int startPage, int endPage, String language) throws IOException {
 
@@ -49,6 +50,7 @@ public class PDFTextLocationStripper extends PDFTextStripper {
         this.initEndSymbol();
 
         PDDocument document = PDDocument.load(new File(filename));
+        this.rotate = document.getPage(startPage-1).getRotation();
         this.setSortByPosition(true);
         this.setStartPage(startPage);
         this.setEndPage(endPage);
@@ -95,11 +97,13 @@ public class PDFTextLocationStripper extends PDFTextStripper {
 
         PDColor nonStrokingColor = getGraphicsState().getNonStrokingColor();
 
-        float pageHeight = text.getPageHeight();
+        float pageHeight = this.rotate == 90 ? text.getPageWidth() : text.getPageHeight();
         float x = text.getXDirAdj();
         float y = pageHeight - text.getYDirAdj();
         float h = text.getFontSizeInPt();
         float w = text.getWidthDirAdj();
+        if (h < 0.1) h = Math.max(h, w);
+        if (w < 0.1) w = Math.max(h, w);
 
         float t = 0;
         try {

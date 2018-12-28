@@ -7,14 +7,19 @@ import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.xobject.PdfFormXObject;
 import com.itextpdf.layout.Canvas;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.property.TextAlignment;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +34,6 @@ public class PDFTranslationWriter {
 
     public PDFTranslationWriter(String source, String target, Test test, String language, String domain) throws IOException {
         pdfDocument = new PdfDocument(new PdfReader(source), new PdfWriter(target));
-
         this.test = test;
         this.language = language;
         this.domain = domain;
@@ -92,8 +96,7 @@ public class PDFTranslationWriter {
     }
 
     public void drawTranslation(List<LineText> textWithRectangles, int pageNumber) {
-        PdfCanvas pdfCanvas = new PdfCanvas(pdfDocument.getPage(pageNumber));
-
+        PdfCanvas pdfCanvas = new PdfCanvas(pdfDocument.getPage(pageNumber).setIgnorePageRotationForContent(true));
         for (LineText textWithRectangle: textWithRectangles) {
 
             Rectangle rectangle = textWithRectangle.getRectangle();
@@ -107,7 +110,10 @@ public class PDFTranslationWriter {
             Color color = new DeviceRgb(rgb >> 16 & 0xff,rgb >> 8 & 0xff, rgb & 0xff);
             pdfCanvas.setFillColor(color);
             Paragraph p = new Paragraph(translationText).setMultipliedLeading(1);
-            new Canvas(pdfCanvas, pdfDocument, textWithRectangle.getRectangle()).add(p).close();
+
+            new Canvas(pdfCanvas, pdfDocument, textWithRectangle.getRectangle())
+                    .add(p)
+                    .close();
         }
     }
 
@@ -151,18 +157,24 @@ public class PDFTranslationWriter {
 
     private float calculateFontSizeWithScale(Rectangle rectangle, String text) {
         // 计算字体大小
+        float scale;
+        if (this.language.matches(".*?CN") || this.language.matches(".*?JP")) {
+            scale = (float) 1.2;
+        } else {
+            scale = (float) 1.4;
+        }
 
         // empty content
         if (text.length() < 1) return 1;
 
         // 边界
-        float maxHeight = (float) (rectangle.getHeight() - 5);
+        float maxHeight = (rectangle.getHeight() - 5);
         float maxWidth = (float) (rectangle.getWidth() * 0.9);
 
         float actualFontSize = 50;
         while (true) {
             float actualWidth = this.font.getWidth(text, actualFontSize);
-            int lineCapacity = (int) (maxHeight / actualFontSize / (float) 1.4);
+            int lineCapacity = (int) (maxHeight / actualFontSize / scale);
             if (lineCapacity * maxWidth > actualWidth)
                 break;
 

@@ -79,6 +79,5 @@ public class PDFTranslateWQ {
 
         File file = new File(tmp);
         boolean result = file.delete();
-
     }
 }
