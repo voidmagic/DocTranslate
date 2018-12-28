@@ -1,6 +1,7 @@
 package com.baiyyang.operation;
 
 import cn.ac.ia.cip.PdfTextProcess;
+import cn.ac.ia.cip.Varifier;
 import cn.ac.ia.cip.reader.LineText;
 import cn.ac.ia.cip.reader.PDFTextLocationStripper;
 import cn.ac.ia.cip.writer.PDFTranslationWriter;
@@ -10,6 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,6 +55,13 @@ public class PDFTranslateWQ {
     }
 
     public void translateFile(String source, String target) throws IOException {
+
+
+        Varifier varifier = new Varifier();
+        if (varifier.illegal(source)) {
+            System.out.println("This file is illegal: " + source);
+            return;
+        }
 
         final PDDocument document = PDDocument.load(new File(source));
         int num = document.getNumberOfPages();

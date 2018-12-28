@@ -337,5 +337,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="levigo-jbig2-imageio-2.0" level="project" />
+    <orderEntry type="library" name="jai-imageio-core-1.4.0" level="project" />
   </component>
 </module>
