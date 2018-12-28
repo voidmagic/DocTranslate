@@ -15,6 +15,7 @@ import org.apache.pdfbox.util.Matrix;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Varifier extends PDFStreamEngine {
@@ -34,13 +35,14 @@ public class Varifier extends PDFStreamEngine {
 
     }
 
-    public boolean illegal(String file) throws IOException {
+    public List<Integer> illegalPages(String file) throws IOException {
         PDDocument document = PDDocument.load(new File(file));
 
-        float illegalNumber = 0;
+        List<Integer> picPageNumbers = new ArrayList<>();
         int totalNumber = document.getNumberOfPages();
 
-        for( PDPage page : document.getPages() ) {
+        for(int i = 0; i < document.getNumberOfPages(); ++i) {
+            PDPage page = document.getPage(i);
             this.imgCount = 0;
 
             this.processPage(page);
@@ -48,12 +50,12 @@ public class Varifier extends PDFStreamEngine {
 
             float pageArea = page.getMediaBox().getHeight() * page.getMediaBox().getWidth();
             if (this.imgPosition < 2.0 && this.imgArea / pageArea > 0.8) {
-                illegalNumber += 1;
+                picPageNumbers.add(i);
             }
         }
 
         document.close();
-        return illegalNumber / totalNumber > 0.5;
+        return picPageNumbers;
     }
 
 

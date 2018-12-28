@@ -58,10 +58,7 @@ public class PDFTranslateWQ {
 
 
         Varifier varifier = new Varifier();
-        if (varifier.illegal(source)) {
-            System.out.println("This file is illegal: " + source);
-            return;
-        }
+        List<Integer> illegalPages = varifier.illegalPages(source);
 
         final PDDocument document = PDDocument.load(new File(source));
         int num = document.getNumberOfPages();
@@ -81,7 +78,11 @@ public class PDFTranslateWQ {
 
         PDFTranslationWriter writer = new PDFTranslationWriter(tmp, target, test, this.language, this.domain);
         for (int i = 1; i <= num; ++i) {
-            writer.drawTranslation(allPageTextWithRectangles.get(i-1), i);
+            if (illegalPages.contains(i-1)) {
+                writer.drawTranslationWithWhiteBlock(allPageTextWithRectangles.get(i - 1), i);
+            } else {
+                writer.drawTranslation(allPageTextWithRectangles.get(i - 1), i);
+            }
         }
 
         writer.close();
