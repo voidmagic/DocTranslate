@@ -34,11 +34,11 @@ public class Main {
                 process(source, target, language);
             }
         } else {
-            String source = "example/38/" + "英文-ppt式带背景图表文本4-pdf1.5.pdf";
+            String source = "example/38/" + "中文-ppt式图表文本2-pdf1.5.pdf";
             System.out.println(source);
-            String target = "example/res/" + "英文-ppt式带背景图表文本4-pdf1.5.pdf";
+            String target = "example/res/" + "中文-ppt式图表文本2-pdf1.5.pdf";
             String language;
-            language = "CN2EN";
+            language = "CN2CN";
             process(source, target, language);
         }
     }

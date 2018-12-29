@@ -94,7 +94,7 @@ public class PDFTranslationWriter {
         translationText = translationText.setFontSize(fontSize);
         pdfCanvas.setFillColor(color);
         Paragraph p = new Paragraph(translationText).setMultipliedLeading(1);
-        if (textWithRectangle.getDirection() != 0) {
+        if (textWithRectangle.getDirection() == 90) {
             p.setRotationAngle(textWithRectangle.getDirection() / 180 * Math.PI);
             float x = pdfDocument.getPage(1).getPageSize().getHeight() - rectangle.getX();
             float y = pdfDocument.getPage(1).getPageSize().getHeight() - rectangle.getY();

@@ -99,6 +99,9 @@ public class PDFTextLocationStripper extends PDFTextStripper {
 
         float pageHeight = this.rotate == 90 ? text.getPageWidth() : text.getPageHeight();
         float direction = text.getDir();
+        if (this.rotate == text.getDir() || text.getDir() == 90) {
+            direction = 0;
+        }
         float x = text.getXDirAdj();
         float y = pageHeight - text.getYDirAdj();
         float h = text.getFontSizeInPt();
