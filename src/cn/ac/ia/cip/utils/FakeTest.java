@@ -1,21 +1,21 @@
-package cn.ac.ia.cip;
+package cn.ac.ia.cip.utils;
 
+import cn.ac.ia.cip.utils.mt.STMTWeb;
+import cn.ac.ia.cip.utils.mt.STMTWebService;
 import com.baiyyang.server.test.Test;
 
 import java.util.Random;
 
 public class FakeTest extends Test {
     private static int scale = 4;
-
-    public FakeTest() {super(false);}
+    private STMTWeb stmt;
+    public FakeTest() {
+        super(false);
+        stmt = new STMTWebService().getSTMTWebPort();
+    }
 
     public String test(String language, String domain, String source) {
-//        int len = source.length();
-//        if (language.split("2")[1].equals("EN"))
-//            return randomChar(len*scale);
-//        else
-//            return randomChs(len/scale+1);
-        return source;
+        return stmt.getTranslation(language, domain, "ABSTRACT", source);
     }
 
     private String randomChar(int len) {

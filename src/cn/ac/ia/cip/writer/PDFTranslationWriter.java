@@ -7,19 +7,14 @@ import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
-import com.itextpdf.kernel.pdf.xobject.PdfFormXObject;
 import com.itextpdf.layout.Canvas;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
-import com.itextpdf.layout.property.TextAlignment;
 
 import java.io.IOException;
 import java.util.List;
@@ -157,13 +152,7 @@ public class PDFTranslationWriter {
 
     private float calculateFontSizeWithScale(Rectangle rectangle, String text) {
         // 计算字体大小
-        float scale;
-        if (this.language.matches(".*?CN") || this.language.matches(".*?JP")) {
-            scale = (float) 1.2;
-        } else {
-            scale = (float) 1.4;
-        }
-
+        float scale = (float) 1.5;
         // empty content
         if (text.length() < 1) return 1;
 

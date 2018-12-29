@@ -1,4 +1,4 @@
-package cn.ac.ia.cip;
+package cn.ac.ia.cip.utils;
 
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
 import org.apache.pdfbox.contentstream.operator.DrawObject;

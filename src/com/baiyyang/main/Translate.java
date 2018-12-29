@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 
 import javax.xml.ws.WebServiceException;
 
+import cn.ac.ia.cip.PDFTranslateImpl;
 import com.baiyyang.operation.*;
 import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 
@@ -106,7 +107,7 @@ public class Translate {
 				}
 			}
 
-			PDFTranslateWQ translate = new PDFTranslateWQ(language, domain, docType);
+			PDFTranslateImpl translate = new PDFTranslateImpl(language, domain, docType);
 			
 			translate.translate(global, userAbsolutePath);
 			

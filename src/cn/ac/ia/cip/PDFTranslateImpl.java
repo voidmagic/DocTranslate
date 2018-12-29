@@ -1,30 +1,27 @@
-package com.baiyyang.operation;
+package cn.ac.ia.cip;
 
-import cn.ac.ia.cip.PdfTextProcess;
-import cn.ac.ia.cip.Varifier;
+import cn.ac.ia.cip.utils.PdfTextProcess;
+import cn.ac.ia.cip.utils.Varifier;
 import cn.ac.ia.cip.reader.LineText;
 import cn.ac.ia.cip.reader.PDFTextLocationStripper;
 import cn.ac.ia.cip.writer.PDFTranslationWriter;
 import com.baiyyang.global.Global;
 import com.baiyyang.server.test.Test;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PDFTranslateWQ {
+public class PDFTranslateImpl {
 
     private Test test;
     private String language;
     private String srcLang;
     private String domain;
 
-    public PDFTranslateWQ(String language, String domain, String docType) {
+    public PDFTranslateImpl(String language, String domain, String docType) {
         this.domain = domain;
         this.language = language;
 
@@ -35,7 +32,7 @@ public class PDFTranslateWQ {
         test = new Test();
     }
 
-    public PDFTranslateWQ(String language, String domain, String docType, Test test) {
+    public PDFTranslateImpl(String language, String domain, String docType, Test test) {
         this.domain = domain;
         this.language = language;
 
