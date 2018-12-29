@@ -98,6 +98,7 @@ public class PDFTextLocationStripper extends PDFTextStripper {
         PDColor nonStrokingColor = getGraphicsState().getNonStrokingColor();
 
         float pageHeight = this.rotate == 90 ? text.getPageWidth() : text.getPageHeight();
+        float direction = text.getDir();
         float x = text.getXDirAdj();
         float y = pageHeight - text.getYDirAdj();
         float h = text.getFontSizeInPt();
@@ -123,9 +124,9 @@ public class PDFTextLocationStripper extends PDFTextStripper {
         if (this.language.equals(PDFTextLocationStripper.EN)) w = (float) (h * 0.7);
 
         try {
-            lineTextList.add(new LineText(text.getUnicode(), rectangle, y, w, h, nonStrokingColor.toRGB()));
+            lineTextList.add(new LineText(text.getUnicode(), rectangle, y, w, h, nonStrokingColor.toRGB(), direction));
         } catch (IOException e) {
-            lineTextList.add(new LineText(text.getUnicode(), rectangle, y, w, h, 0));
+            lineTextList.add(new LineText(text.getUnicode(), rectangle, y, w, h, 0, direction));
         }
     }
 

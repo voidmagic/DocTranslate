@@ -18,8 +18,9 @@ public class LineText {
     private float lastLineMargin;
 
     private int textColor;
+    private float direction;
 
-    public LineText(String text, Rectangle rectangle, float baseLine, float charWidth, float charHeight, int color) {
+    public LineText(String text, Rectangle rectangle, float baseLine, float charWidth, float charHeight, int color, float direction) {
         this.baseLine = baseLine;
         this.text = text;
         this.charWidth = charWidth;
@@ -31,6 +32,7 @@ public class LineText {
         this.lastLineMargin = charHeight * (float) 0.7;
 
         this.textColor = color;
+        this.direction = direction;
     }
 
     public String getText() {
@@ -178,5 +180,13 @@ public class LineText {
 
     public void setTextColor(int textColor) {
         this.textColor = textColor;
+    }
+
+    public float getDirection() {
+        return direction;
+    }
+
+    public void setDirection(float direction) {
+        this.direction = direction;
     }
 }

@@ -15,7 +15,11 @@ public class FakeTest extends Test {
     }
 
     public String test(String language, String domain, String source) {
-        return stmt.getTranslation(language, domain, "ABSTRACT", source);
+        if (Config.testMt) {
+            return stmt.getTranslation(language, domain, "ABSTRACT", source);
+        } else {
+            return source;
+        }
     }
 
     private String randomChar(int len) {
