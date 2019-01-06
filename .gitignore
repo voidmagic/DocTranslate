@@ -1,5 +1,6 @@
-D:/
+
 .idea/
 bin/
 example/
 logs
+.DS_store
