@@ -17,8 +17,10 @@ public class FakeTest extends Test {
     public String test(String language, String domain, String source) {
         if (Config.testMt) {
             return stmt.getTranslation(language, domain, "ABSTRACT", source);
+        } else if (language.equals("EN2CN")) {
+            return randomChs(source.length());
         } else {
-            return source;
+            return randomChar(source.length());
         }
     }
 

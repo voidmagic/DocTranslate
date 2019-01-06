@@ -17,7 +17,7 @@ public class Main {
         Arrays.sort(files);
 
         Config.testMt = false;
-        Config.runAll = false;
+        Config.runAll = true;
 
         if (Config.runAll) {
             for (int i = 1; i < files.length; ++i) {
